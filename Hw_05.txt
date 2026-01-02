@@ -1,0 +1,78 @@
+Завдання 1
+
+SELECT
+    od.id,
+    od.order_id,
+    od.product_id,
+    od.quantity,
+    (
+        SELECT o.customer_id
+        FROM mydb.orders o
+        WHERE o.id = od.order_id
+    ) AS customer_id
+FROM mydb.order_details od;
+
+
+Завдання 2
+SELECT
+    od.id,
+    od.order_id,
+    od.product_id,
+    od.quantity
+FROM mydb.order_details od
+WHERE od.order_id IN (
+    SELECT o.id
+    FROM mydb.orders o
+    WHERE o.shipper_id = 3
+);
+
+Завдання 3
+SELECT
+    t.order_id,
+    AVG(t.quantity) AS avg_quantity
+FROM (
+    SELECT
+        od.order_id,
+        od.quantity
+    FROM mydb.order_details od
+    WHERE od.quantity > 10
+) AS t
+GROUP BY t.order_id;
+
+Завдання 4
+WITH temp AS (
+    SELECT
+        od.order_id,
+        od.quantity
+    FROM mydb.order_details od
+    WHERE od.quantity > 10
+)
+SELECT
+    temp.order_id,
+    AVG(temp.quantity) AS avg_quantity
+FROM temp
+GROUP BY temp.order_id;
+
+Завдання 5
+USE mydb;
+
+DROP FUNCTION IF EXISTS fn_divide;
+
+DELIMITER $$
+
+CREATE FUNCTION fn_divide(a FLOAT, b FLOAT)
+RETURNS FLOAT
+DETERMINISTIC
+RETURN a / b $$
+
+DELIMITER ;
+
+SELECT
+    od.id,
+    od.order_id,
+    od.product_id,
+    od.quantity,
+    fn_divide(od.quantity, 2) AS quantity_divided
+FROM mydb.order_details od;
+
+
